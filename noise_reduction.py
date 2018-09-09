@@ -16,6 +16,7 @@ numberOfPoints = 2 * size1 + 1
 numberOfData = 100
 numberOfTest = 3
 numberOfTrain = numberOfData - numberOfTest
+miniBatchSize = 20
 
 # アルゴリズム設定
 # Number of perceptrons at 2nd layer
@@ -103,9 +104,12 @@ with tf.Session() as sess:
     sess.run(init)
 
 #         sess.run(train_step, feed_dict={x:obs[j] ,y:signal[j]})
-    for j in range(1, numberOfTrain + 1):
+    for j in range(0, numberOfTrain, miniBatchSize):
+        idxEnd = min(j + miniBatchSize, numberOfTrain)
+        print("Index from ", j, " to ", idxEnd - 1)
+
         sess.run(
-            train_step, feed_dict={x:obs[j - 1:j], y:signal[j - 1:j]})
+            train_step, feed_dict={x:obs[j:idxEnd], y:signal[j:idxEnd]})
 
         test_data = obs[numberOfTrain:numberOfData]
 
@@ -121,7 +125,7 @@ with tf.Session() as sess:
     #             acc_val = sess.run(accuracy ,feed_dict={x:test_images, y:test_labels})
     #             print('Step %d: accuracy = %.2f' % (step, acc_val))
 
-        if j % 10 == 0:
+        if j % 1 == 0:
             for i in range(len(outVal)):
                 print(str(i) + str(len(outVal[i])))
                 plt.scatter(samplePoints, outVal[i], s=numberOfPoints)
@@ -132,4 +136,4 @@ with tf.Session() as sess:
             # test_labelsを2次元arrayで与えていいか不明。
             summary_str = sess.run(summary_op, feed_dict={x:test_images, y:test_labels})
             # ログ情報のプロトコルバッファを書き込む
-            summary_writer.add_summary(summary_str, j)
+            summary_writer.add_summary(summary_str, idxEnd)
