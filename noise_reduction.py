@@ -32,7 +32,7 @@ def Gaussian(x, mu, sigma):
 
 samplePoints = range(-size1, size1 + 1)
 signal = np.zeros((numberOfData, numberOfPoints))
-print(len(samplePoints))
+print("# of sample points: ", len(samplePoints))
 obs = np.zeros((numberOfData, numberOfPoints))
 
 dSigs = np.random.rand(numberOfData).astype("float32")
@@ -103,32 +103,33 @@ with tf.Session() as sess:
     sess.run(init)
 
 #         sess.run(train_step, feed_dict={x:obs[j] ,y:signal[j]})
-    sess.run(
-        train_step, feed_dict={x:obs[0:numberOfTrain], y:signal[0:numberOfTrain]})
+    for j in range(1, numberOfTrain + 1):
+        sess.run(
+            train_step, feed_dict={x:obs[j - 1:j], y:signal[j - 1:j]})
 
-    test_data = obs[numberOfTrain:numberOfData]
+        test_data = obs[numberOfTrain:numberOfData]
 
-# tf.reshapeの第1引数に、numpy.arrayを入れていいのかあやしい。
-    test_images = np.reshape(test_data, [
-        numberOfData - numberOfTrain, numberOfPoints])  # , 1, 1])
-    test_labels = signal[numberOfTrain:numberOfData]
+    # tf.reshapeの第1引数に、numpy.arrayを入れていいのかあやしい。
+        test_images = np.reshape(test_data, [
+            numberOfData - numberOfTrain, numberOfPoints])  # , 1, 1])
+        test_labels = signal[numberOfTrain:numberOfData]
 
-# test_dataからノイズ除去
-    outVal = sess.run(out, feed_dict={x:test_data})
-    for i in range(len(outVal)):
-        print(str(i) + str(len(outVal[i])))
-        plt.scatter(samplePoints, outVal[i], s=numberOfPoints)
-        plt.scatter(samplePoints, signal[numberOfTrain + i])
-        plt.show()
-#    print(outVal)
+    # test_dataからノイズ除去
+        outVal = sess.run(out, feed_dict={x:test_data})
 
-#         if step % 10 == 0:
-#             acc_val = sess.run(accuracy ,feed_dict={x:test_images, y:test_labels})
-#             print('Step %d: accuracy = %.2f' % (step, acc_val))
+    #         if step % 10 == 0:
+    #             acc_val = sess.run(accuracy ,feed_dict={x:test_images, y:test_labels})
+    #             print('Step %d: accuracy = %.2f' % (step, acc_val))
 
-        if i % 1 == 0:
+        if j % 10 == 0:
+            for i in range(len(outVal)):
+                print(str(i) + str(len(outVal[i])))
+                plt.scatter(samplePoints, outVal[i], s=numberOfPoints)
+                plt.scatter(samplePoints, signal[numberOfTrain + i])
+                # plt.show()
+
             # ログを取る処理を実行する（出力はログ情報が書かれたプロトコルバッファ）
             # test_labelsを2次元arrayで与えていいか不明。
             summary_str = sess.run(summary_op, feed_dict={x:test_images, y:test_labels})
             # ログ情報のプロトコルバッファを書き込む
-            summary_writer.add_summary(summary_str, i)
+            summary_writer.add_summary(summary_str, j)
