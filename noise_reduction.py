@@ -52,7 +52,7 @@ for j in range(min(3, numberOfData)):
     plt.show()
 
 # 入力データを定義
-x = tf.placeholder(tf.float32, [None, numberOfPoints])
+x = tf.placeholder(tf.float32, [None, numberOfPoints], name="x_input")
 
 # 入力画像をログに出力
 img = tf.reshape(x, [-1, numberOfPoints, 1, 1])
@@ -77,7 +77,7 @@ with tf.name_scope("output_layer"):
     out = tf.matmul(h_1, w_2) + b_2
 
 # 誤差関数
-y = tf.placeholder(tf.float32, [None, numberOfPoints])
+y = tf.placeholder(tf.float32, [None, numberOfPoints], name="y_input")
 with tf.name_scope("loss"):
     loss = tf.reduce_mean(tf.square(y - out))
 
