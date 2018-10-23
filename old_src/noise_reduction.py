@@ -88,10 +88,6 @@ with tf.name_scope("loss"):
 with tf.name_scope("train"):
     train_step = tf.train.GradientDescentOptimizer(learningRate).minimize(loss)
 
-# 評価
-# correct = tf.equal(tf.argmax(out,1), tf.argmax(y,1))
-# accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-
 # 初期化
 init = tf.global_variables_initializer()
 
@@ -113,17 +109,13 @@ with tf.Session() as sess:
 
         test_data = obs[numberOfTrain:numberOfData]
 
-    # tf.reshapeの第1引数に、numpy.arrayを入れていいのかあやしい。
+        # tf.reshapeの第1引数に、numpy.arrayを入れていいのかあやしい。
         test_images = np.reshape(test_data, [
             numberOfData - numberOfTrain, numberOfPoints])  # , 1, 1])
         test_labels = signal[numberOfTrain:numberOfData]
 
-    # test_dataからノイズ除去
+        # test_dataからノイズ除去
         outVal = sess.run(out, feed_dict={x:test_data})
-
-    #         if step % 10 == 0:
-    #             acc_val = sess.run(accuracy ,feed_dict={x:test_images, y:test_labels})
-    #             print('Step %d: accuracy = %.2f' % (step, acc_val))
 
         if j % 1 == 0:
             for i in range(len(outVal)):
